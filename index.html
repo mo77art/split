@@ -5,33 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0d0e">
 <title>Mo77art split</title>
-<!-- Telegram WebApp SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- ===== РАННИЙ СТИЛЬ: загрузочный экран (грузится моментально) ===== -->
+<style>
+  html, body { background: #08090b; margin: 0; }
+  #preloader {
+    position: fixed; inset: 0; z-index: 999999;
+    background: radial-gradient(ellipse 100% 40% at 50% 0%, rgba(0,232,143,0.10), transparent 60%),
+                radial-gradient(ellipse 80% 40% at 100% 100%, rgba(123,92,255,0.08), transparent 60%),
+                #08090b;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 26px;
+    transition: opacity 0.55s ease, visibility 0s linear 0.55s;
+    opacity: 1; visibility: visible;
+    -webkit-user-select: none; user-select: none;
+  }
+  #preloader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  #preloader .pre-logo {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-size: 30px; font-weight: 800; letter-spacing: -0.7px;
+    background: linear-gradient(100deg, #00e88f 0%, #00b8ff 55%, #7b5cff 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: prePulse 1.9s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  @keyframes prePulse {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50%      { transform: scale(1.025); opacity: 1; }
+  }
+  #preloader .pre-bar {
+    width: 190px; height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden; position: relative;
+  }
+  #preloader .pre-bar-fill {
+    height: 100%; width: 0%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #00e88f, #00b8ff);
+    box-shadow: 0 0 14px rgba(0,232,143,0.55);
+    transition: width 0.35s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  #preloader .pre-bar-fill::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+    animation: preShimmer 1.25s linear infinite;
+  }
+  @keyframes preShimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  #preloader .pre-percent {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: #7d8790; letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+    margin-top: -14px;
+  }
+</style>
+<!-- ===== / РАННИЙ СТИЛЬ ===== -->
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
-    --bg: #08090b;
-    --card: #12181c;
-    --card-2: #1a2126;
-    --text: #f2f5f7;
-    --muted: #7d8790;
-    --muted-2: #5a636b;
-    --accent: #00e88f;
-    --danger: #ff4d5e;
-    --warn: #ffb400;
-    --border: rgba(255,255,255,0.07);
-    --border-2: rgba(255,255,255,0.12);
-    --nav-h: 66px;
-    --top-safe: env(safe-area-inset-top);
-    --bot-safe: env(safe-area-inset-bottom);
+    --bg: #08090b; --card: #12181c; --card-2: #1a2126;
+    --text: #f2f5f7; --muted: #7d8790; --muted-2: #5a636b;
+    --accent: #00e88f; --danger: #ff4d5e; --warn: #ffb400;
+    --border: rgba(255,255,255,0.07); --border-2: rgba(255,255,255,0.12);
+    --nav-h: 66px; --top-safe: env(safe-area-inset-top); --bot-safe: env(safe-area-inset-bottom);
   }
   html, body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
-    overscroll-behavior-y: none;
-    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; overscroll-behavior-y: none; -webkit-font-smoothing: antialiased;
   }
   body {
     padding-bottom: calc(var(--nav-h) + 34px + var(--bot-safe));
@@ -46,8 +97,7 @@
     position: sticky; top: 0; z-index: 50;
     background: rgba(8,9,11,0.85);
     backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    padding: 12px 14px;
-    padding-top: calc(12px + var(--top-safe));
+    padding: 12px 14px; padding-top: calc(12px + var(--top-safe));
     display: flex; align-items: center; justify-content: space-between;
     gap: 8px; border-bottom: 1px solid var(--border);
   }
@@ -62,11 +112,9 @@
 
   .orders-badge {
     width: 42px; height: 42px; border-radius: 14px;
-    border: 1.5px solid var(--border-2);
-    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--border-2); background: rgba(255,255,255,0.04);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: transform 0.15s, background 0.2s, border-color 0.2s;
+    cursor: pointer; transition: transform 0.15s, background 0.2s, border-color 0.2s;
     flex: 0 0 auto; position: relative;
     -webkit-user-select: none; user-select: none;
   }
@@ -76,8 +124,7 @@
   .orders-badge.active svg { stroke: var(--warn); }
   .orders-badge .dot {
     display: none; position: absolute; top: 5px; right: 5px;
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--warn);
+    width: 9px; height: 9px; border-radius: 50%; background: var(--warn);
     box-shadow: 0 0 0 2px rgba(8,9,11,0.9), 0 0 0 0 rgba(255,180,0,0.6);
     animation: dotPulse2 1.8s infinite;
   }
@@ -94,8 +141,7 @@
     border: 1.5px dashed rgba(0,232,143,0.45); border-radius: 14px;
     background: rgba(0,232,143,0.04); cursor: pointer;
     transition: transform 0.15s, background 0.2s;
-    user-select: none; -webkit-user-select: none;
-    min-width: 0; flex: 0 1 auto;
+    user-select: none; -webkit-user-select: none; min-width: 0; flex: 0 1 auto;
   }
   .pvz-badge:active { transform: scale(0.97); background: rgba(0,232,143,0.09); }
   .pvz-badge .pin {
@@ -112,12 +158,9 @@
   .page.active { display: block; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
   .page-title { font-size: 30px; font-weight: 800; letter-spacing: -0.9px; margin-bottom: 16px; }
-
   .back-btn {
-    background: none; border: none; color: var(--muted);
-    font-size: 14px; font-weight: 600;
-    padding: 4px 0 14px; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; color: var(--muted); font-size: 14px; font-weight: 600;
+    padding: 4px 0 14px; cursor: pointer; display: flex; align-items: center; gap: 6px;
     font-family: inherit; transition: color 0.15s;
   }
   .back-btn:active { color: var(--text); }
@@ -138,29 +181,19 @@
     pointer-events: none;
   }
   .cat-card:active { transform: scale(0.98); border-color: rgba(0,232,143,0.4); box-shadow: 0 0 0 1px rgba(0,232,143,0.15), 0 8px 24px rgba(0,232,143,0.1); }
-  .cat-card .cat-icon {
-    width: 56px; height: 56px; border-radius: 18px;
-    background: rgba(255,255,255,0.05); border: 1px solid var(--border-2);
-    display: flex; align-items: center; justify-content: center;
-    flex: 0 0 auto; position: relative; z-index: 1;
-  }
+  .cat-card .cat-icon { width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-2); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; position: relative; z-index: 1; }
   .cat-card .cat-icon svg { width: 30px; height: 30px; fill: var(--text); }
   .cat-card .cat-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
   .cat-card .cat-name { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 3px; }
   .cat-card .cat-desc { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cat-card .cat-arrow {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(0,232,143,0.1);
-    display: flex; align-items: center; justify-content: center;
-    flex: 0 0 auto; position: relative; z-index: 1;
-  }
+  .cat-card .cat-arrow { width: 26px; height: 26px; border-radius: 50%; background: rgba(0,232,143,0.1); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; position: relative; z-index: 1; }
   .cat-card .cat-arrow svg { width: 14px; height: 14px; stroke: var(--accent); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .product { background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.15s; }
   .product:active { transform: scale(0.98); }
   .product-img { aspect-ratio: 1 / 1; background: #ffffff; position: relative; overflow: hidden; }
-  .product-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .product-img > img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .product-img .placeholder-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #c8ccd0; }
   .product-img .placeholder-icon svg { width: 42%; height: 42%; fill: currentColor; }
   .product-img .sale-badge {
@@ -172,6 +205,26 @@
     box-shadow: 0 4px 12px rgba(255,77,94,0.35);
     z-index: 2;
   }
+  .casino-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 4px 12px rgba(229,46,113,0.45);
+    transition: transform 0.15s;
+  }
+  .casino-btn:active { transform: scale(0.88); }
+  .casino-btn svg { width: 20px; height: 20px; fill: #fff; }
+
   .product-body { padding: 10px 11px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
   .product-name { font-size: 13px; font-weight: 700; line-height: 1.25; letter-spacing: -0.2px; min-height: 33px; }
   .product-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
@@ -205,11 +258,7 @@
   }
   .cart-summary-top .cnt { color: var(--muted); }
   .cart-summary-top .cnt b { color: var(--text); font-weight: 700; }
-  .cart-summary-top .clear {
-    color: var(--danger); font-size: 12.5px; font-weight: 600;
-    background: none; border: none; cursor: pointer; font-family: inherit;
-    padding: 4px 8px; border-radius: 8px; transition: background 0.15s;
-  }
+  .cart-summary-top .clear { color: var(--danger); font-size: 12.5px; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; padding: 4px 8px; border-radius: 8px; transition: background 0.15s; }
   .cart-summary-top .clear:active { background: rgba(255,77,94,0.1); }
 
   .cart-item {
@@ -223,12 +272,7 @@
   .cart-item .thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .cart-item .thumb .placeholder-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #c8ccd0; }
   .cart-item .thumb .placeholder-icon svg { width: 55%; height: 55%; fill: currentColor; }
-  .cart-item .thumb .sale-mini {
-    position: absolute; top: 4px; left: 4px;
-    background: linear-gradient(120deg, #ff4d5e, #ff8a5b);
-    color: #fff; font-size: 8.5px; font-weight: 800;
-    padding: 2px 5px; border-radius: 5px; z-index: 2;
-  }
+  .cart-item .thumb .sale-mini { position: absolute; top: 4px; left: 4px; background: linear-gradient(120deg, #ff4d5e, #ff8a5b); color: #fff; font-size: 8.5px; font-weight: 800; padding: 2px 5px; border-radius: 5px; z-index: 2; }
   .cart-item .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; justify-content: center; }
   .cart-item .info .name { font-size: 13.5px; font-weight: 700; line-height: 1.25; letter-spacing: -0.2px; padding-right: 24px; }
   .cart-item .info .meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
@@ -238,14 +282,7 @@
   .cart-item .info .price-line { display: flex; align-items: baseline; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
   .cart-item .info .price-line .price-old { font-size: 10.5px; }
   .cart-item .info .price-line .price-new { font-size: 15px; }
-
-  .cart-item .remove {
-    position: absolute; top: 8px; right: 8px;
-    width: 24px; height: 24px; border-radius: 50%;
-    background: rgba(255,255,255,0.05); border: none;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.15s; padding: 0; z-index: 5;
-  }
+  .cart-item .remove { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.05); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; padding: 0; z-index: 5; }
   .cart-item .remove:active { background: rgba(255,77,94,0.2); }
   .cart-item .remove svg { width: 12px; height: 12px; stroke: var(--muted); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
   .cart-item .remove:active svg { stroke: var(--danger); }
@@ -255,24 +292,14 @@
     border: 1px solid var(--border-2); border-radius: 20px;
     padding: 18px; margin-top: 16px; position: relative; overflow: hidden;
   }
-  .cart-total-card::before {
-    content: ""; position: absolute; top: -60px; right: -60px;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, rgba(0,232,143,0.15), transparent 70%);
-    pointer-events: none;
-  }
+  .cart-total-card::before { content: ""; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(0,232,143,0.15), transparent 70%); pointer-events: none; }
   .cart-total-card .row { display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; color: var(--muted); margin-bottom: 10px; position: relative; z-index: 1; }
   .cart-total-card .row b { color: var(--text); font-weight: 700; }
   .cart-total-card .row.discount b { color: var(--accent); }
   .cart-total-card .row.divider { height: 1px; background: var(--border); margin: 14px 0; padding: 0; }
   .cart-total-card .total-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; position: relative; z-index: 1; }
   .cart-total-card .total-row .lbl { font-size: 15px; font-weight: 700; color: var(--text); }
-  .cart-total-card .total-row .sum {
-    font-size: 24px; font-weight: 800; letter-spacing: -0.8px;
-    background: linear-gradient(140deg, #00e88f, #00b8ff);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+  .cart-total-card .total-row .sum { font-size: 24px; font-weight: 800; letter-spacing: -0.8px; background: linear-gradient(140deg, #00e88f, #00b8ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .checkout-btn {
     width: 100%; background: linear-gradient(120deg, #00e88f, #00b8ff);
     color: #06120c; border: none; border-radius: 14px;
@@ -297,12 +324,7 @@
   .rating-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; }
   .rating-top { display: flex; align-items: center; gap: 18px; }
   .rating-big { text-align: center; flex: 0 0 auto; }
-  .rating-big .num {
-    font-size: 44px; font-weight: 800; letter-spacing: -2px;
-    background: linear-gradient(140deg, #00e88f, #00b8ff);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; line-height: 1;
-  }
+  .rating-big .num { font-size: 44px; font-weight: 800; letter-spacing: -2px; background: linear-gradient(140deg, #00e88f, #00b8ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
   .rating-big .stars { color: #ffb400; font-size: 13px; letter-spacing: 1px; margin-top: 4px; }
   .rating-big .cnt { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
@@ -312,29 +334,13 @@
   .rating-bar .fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #00e88f, #00b8ff); width: 0%; }
   .rating-bar .cnt-num { width: 24px; text-align: right; font-size: 10.5px; }
 
-  .info-box {
-    background: rgba(0,232,143,0.05); border: 1px solid rgba(0,232,143,0.18);
-    border-radius: 16px; padding: 14px 16px; font-size: 12.5px;
-    line-height: 1.5; color: #b6c0c7; margin-bottom: 12px; display: flex; gap: 10px;
-  }
+  .info-box { background: rgba(0,232,143,0.05); border: 1px solid rgba(0,232,143,0.18); border-radius: 16px; padding: 14px 16px; font-size: 12.5px; line-height: 1.5; color: #b6c0c7; margin-bottom: 12px; display: flex; gap: 10px; }
   .info-box svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; margin-top: 1px; }
 
-  .outline-btn {
-    width: 100%; background: transparent; color: var(--accent);
-    border: 1.5px solid rgba(0,232,143,0.5); border-radius: 14px;
-    padding: 13px; font-size: 14.5px; font-weight: 700;
-    cursor: pointer; font-family: inherit; margin-bottom: 14px; transition: all 0.15s;
-  }
+  .outline-btn { width: 100%; background: transparent; color: var(--accent); border: 1.5px solid rgba(0,232,143,0.5); border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 14px; transition: all 0.15s; }
   .outline-btn:active { background: rgba(0,232,143,0.1); }
 
-  .support-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 18px; padding: 16px;
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 10px; cursor: pointer;
-    transition: transform 0.15s, border-color 0.2s;
-    text-decoration: none; color: inherit;
-  }
+  .support-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; cursor: pointer; transition: transform 0.15s, border-color 0.2s; text-decoration: none; color: inherit; }
   .support-card:active { transform: scale(0.98); border-color: var(--border-2); }
   .support-card .ic { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-2); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .support-card .ic svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -343,69 +349,25 @@
   .support-card p { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .support-card .act { font-size: 12.5px; font-weight: 700; color: var(--accent); padding: 8px 14px; border: 1.5px solid rgba(0,232,143,0.4); border-radius: 11px; flex: 0 0 auto; }
 
-  nav.bottom {
-    position: fixed;
-    bottom: calc(14px + var(--bot-safe));
-    left: 14px; right: 14px;
-    background: rgba(14,18,21,0.92);
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border-2); border-radius: 26px;
-    height: var(--nav-h); padding: 6px;
-    z-index: 100; box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
-    touch-action: none;
-    -webkit-user-select: none; user-select: none;
-    overflow: hidden;
-  }
+  nav.bottom { position: fixed; bottom: calc(14px + var(--bot-safe)); left: 14px; right: 14px; background: rgba(14,18,21,0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border-2); border-radius: 26px; height: var(--nav-h); padding: 6px; z-index: 100; box-shadow: 0 -8px 30px rgba(0,0,0,0.5); touch-action: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
   nav.bottom .nav-track { position: relative; display: flex; width: 100%; height: 100%; border-radius: 20px; }
-  nav.bottom .nav-indicator {
-    position: absolute; top: 0; left: 0; height: 100%; border-radius: 20px;
-    background: rgba(0,232,143,0.09);
-    box-shadow: 0 0 14px rgba(0,232,143,0.15), inset 0 0 0 1px rgba(0,232,143,0.06);
-    pointer-events: none;
-    transition: transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
-    will-change: transform; z-index: 1;
-  }
+  nav.bottom .nav-indicator { position: absolute; top: 0; left: 0; height: 100%; border-radius: 20px; background: rgba(0,232,143,0.09); box-shadow: 0 0 14px rgba(0,232,143,0.15), inset 0 0 0 1px rgba(0,232,143,0.06); pointer-events: none; transition: transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1); will-change: transform; z-index: 1; }
   nav.bottom.dragging .nav-indicator { transition: none; background: rgba(0,232,143,0.13); box-shadow: 0 0 22px rgba(0,232,143,0.28), inset 0 0 0 1px rgba(0,232,143,0.15); }
-  nav.bottom button {
-    flex: 1; height: 100%; background: none; border: none; color: var(--muted);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px; font-size: 10px; font-weight: 600; font-family: inherit;
-    cursor: pointer; border-radius: 20px;
-    transition: color 0.2s; position: relative; z-index: 2;
-    -webkit-user-select: none; user-select: none;
-  }
+  nav.bottom button { flex: 1; height: 100%; background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10px; font-weight: 600; font-family: inherit; cursor: pointer; border-radius: 20px; transition: color 0.2s; position: relative; z-index: 2; -webkit-user-select: none; user-select: none; }
   nav.bottom button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: all 0.2s; }
   nav.bottom button.active { color: var(--accent); }
   nav.bottom button.active svg { filter: drop-shadow(0 0 6px rgba(0,232,143,0.55)); }
-  nav.bottom button .badge {
-    position: absolute; top: 4px; right: 50%; transform: translateX(14px);
-    background: var(--accent); color: #06120c; font-size: 9.5px;
-    font-weight: 800; min-width: 15px; height: 15px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; padding: 0 4px;
-  }
+  nav.bottom button .badge { position: absolute; top: 4px; right: 50%; transform: translateX(14px); background: var(--accent); color: #06120c; font-size: 9.5px; font-weight: 800; min-width: 15px; height: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 
-  .modal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.65);
-    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-    z-index: 9999;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0; visibility: hidden; pointer-events: none;
-    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
-  }
+  .pvz-error { display: none; align-items: flex-start; gap: 10px; margin-top: 14px; padding: 12px 14px; background: rgba(255,77,94,0.08); border: 1px solid rgba(255,77,94,0.35); border-radius: 12px; font-size: 12.5px; color: #ffb3bb; line-height: 1.5; position: relative; z-index: 1; }
+  .pvz-error.show { display: flex; animation: pvzErrIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes pvzErrIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .pvz-error svg { width: 18px; height: 18px; stroke: var(--danger); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; margin-top: 1px; }
+  .modal input.input-error { border-color: rgba(255,77,94,0.55); background: rgba(255,77,94,0.05); box-shadow: 0 0 0 4px rgba(255,77,94,0.1); }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.65); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0s linear 0.25s; }
   .modal-overlay.show { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.25s ease, visibility 0s linear 0s; }
-  .modal {
-    width: 100%; max-width: 400px;
-    background: linear-gradient(165deg, #161d22 0%, #0f1418 100%);
-    border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-    padding: 22px 20px 20px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,232,143,0.06), 0 0 60px rgba(0,232,143,0.08);
-    box-sizing: border-box; position: relative; overflow: hidden;
-    transform: scale(0.92) translateY(10px); opacity: 0;
-    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
-  }
+  .modal { width: 100%; max-width: 400px; background: linear-gradient(165deg, #161d22 0%, #0f1418 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); padding: 22px 20px 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,232,143,0.06), 0 0 60px rgba(0,232,143,0.08); box-sizing: border-box; position: relative; overflow: hidden; transform: scale(0.92) translateY(10px); opacity: 0; transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease; }
   .modal-overlay.show .modal { transform: scale(1) translateY(0); opacity: 1; }
   .modal::before { content: ""; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 220px; height: 160px; background: radial-gradient(circle, rgba(0,232,143,0.22), transparent 70%); pointer-events: none; filter: blur(10px); }
   .modal .modal-icon { width: 52px; height: 52px; border-radius: 16px; background: rgba(0,232,143,0.1); border: 1px solid rgba(0,232,143,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; position: relative; z-index: 1; box-shadow: 0 0 24px rgba(0,232,143,0.15); }
@@ -413,15 +375,7 @@
   .modal h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 6px; position: relative; z-index: 1; }
   .modal .sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.4; position: relative; z-index: 1; }
   .modal label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px; position: relative; z-index: 1; }
-  .modal input {
-    width: 100%; background: rgba(0,0,0,0.35);
-    border: 1.5px solid rgba(255,255,255,0.09); border-radius: 14px;
-    padding: 14px 15px; color: var(--text); font-size: 16px;
-    font-family: inherit; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    -webkit-appearance: none; appearance: none;
-    position: relative; z-index: 1;
-  }
+  .modal input { width: 100%; background: rgba(0,0,0,0.35); border: 1.5px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 14px 15px; color: var(--text); font-size: 16px; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; -webkit-appearance: none; appearance: none; position: relative; z-index: 1; }
   .modal input:focus { border-color: rgba(0,232,143,0.55); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(0,232,143,0.1); }
   .modal input::placeholder { color: var(--muted-2); }
   .modal .save-btn { width: 100%; margin-top: 20px; background: linear-gradient(120deg, #00e88f, #00b8ff); color: #06120c; border: none; border-radius: 14px; padding: 15px; font-size: 15.5px; font-weight: 800; font-family: inherit; cursor: pointer; transition: transform 0.15s, box-shadow 0.2s, filter 0.2s; position: relative; z-index: 1; box-shadow: 0 8px 24px rgba(0,232,143,0.3); }
@@ -434,18 +388,7 @@
   .modal.checkout-modal { max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .modal.checkout-modal::-webkit-scrollbar { width: 0; }
 
-  .pay-timer {
-    display: none; align-items: center; gap: 8px;
-    padding: 11px 14px;
-    background: rgba(0,0,0,0.45);
-    border: 1px solid var(--border-2); border-radius: 12px;
-    font-size: 13px; font-weight: 700;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-    margin-bottom: 14px;
-    position: relative; z-index: 1;
-    transition: all 0.25s;
-  }
+  .pay-timer { display: none; align-items: center; gap: 8px; padding: 11px 14px; background: rgba(0,0,0,0.45); border: 1px solid var(--border-2); border-radius: 12px; font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; margin-bottom: 14px; position: relative; z-index: 1; transition: all 0.25s; }
   .pay-timer.show { display: flex; }
   .pay-timer svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
   .pay-timer .pay-timer-text { flex: 1; text-align: left; }
@@ -481,13 +424,7 @@
   .co-pvz .co-pvz-btn:active { background: rgba(0,232,143,0.2); }
 
   .payment-methods { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; position: relative; z-index: 1; }
-  .pay-method {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px; background: rgba(0,0,0,0.3);
-    border: 1.5px solid var(--border); border-radius: 14px;
-    cursor: pointer; font-family: inherit; color: var(--text); text-align: left;
-    transition: all 0.2s; width: 100%;
-  }
+  .pay-method { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; font-family: inherit; color: var(--text); text-align: left; transition: all 0.2s; width: 100%; }
   .pay-method:active { transform: scale(0.99); }
   .pay-method.active { border-color: rgba(0,232,143,0.55); background: rgba(0,232,143,0.06); box-shadow: 0 0 0 3px rgba(0,232,143,0.08); }
   .pay-method-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-2); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; color: var(--muted); transition: all 0.2s; }
@@ -514,18 +451,7 @@
   .copy-btn.done { background: linear-gradient(120deg, #00e88f, #00b8ff); color: #06120c; border-color: transparent; }
   .pay-hint { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
   .pay-hint.no-border { margin-top: 0; padding-top: 0; border-top: none; }
-  .pay-go-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; margin-top: 12px;
-    padding: 13px;
-    background: linear-gradient(120deg, #00e88f, #00b8ff);
-    color: #06120c; border: none; border-radius: 12px;
-    font-size: 14px; font-weight: 800;
-    font-family: inherit; text-decoration: none;
-    cursor: pointer; box-sizing: border-box;
-    transition: transform 0.15s, filter 0.15s, background 0.2s;
-    box-shadow: 0 6px 18px rgba(0,232,143,0.25);
-  }
+  .pay-go-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 12px; padding: 13px; background: linear-gradient(120deg, #00e88f, #00b8ff); color: #06120c; border: none; border-radius: 12px; font-size: 14px; font-weight: 800; font-family: inherit; text-decoration: none; cursor: pointer; box-sizing: border-box; transition: transform 0.15s, filter 0.15s, background 0.2s; box-shadow: 0 6px 18px rgba(0,232,143,0.25); }
   .pay-go-btn:active { transform: scale(0.98); filter: brightness(1.05); }
   .pay-go-btn svg { width: 16px; height: 16px; fill: currentColor; flex: 0 0 auto; }
   .pay-go-btn.disabled { background: rgba(255,255,255,0.05); color: var(--muted-2); box-shadow: none; cursor: not-allowed; }
@@ -556,25 +482,9 @@
   .receipt-upload-action { font-size: 11.5px; font-weight: 700; color: var(--accent); padding: 6px 10px; background: rgba(0,232,143,0.12); border-radius: 8px; flex: 0 0 auto; }
   .receipt-hint { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 10px; }
 
-  /* ОТЗЫВЫ */
-  .review-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 16px;
-    margin-bottom: 10px;
-    position: relative;
-    animation: itemIn 0.3s ease;
-  }
+  .review-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 10px; position: relative; animation: itemIn 0.3s ease; }
   .review-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .review-avatar {
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 800; color: #fff;
-    flex: 0 0 auto;
-    letter-spacing: -0.5px;
-  }
+  .review-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex: 0 0 auto; letter-spacing: -0.5px; }
   .review-user { flex: 1; min-width: 0; }
   .review-name { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .review-stars { display: flex; gap: 2px; }
@@ -582,16 +492,7 @@
   .review-date { position: absolute; top: 16px; right: 16px; font-size: 10.5px; color: var(--muted-2); font-weight: 600; letter-spacing: 0.1px; white-space: nowrap; }
   .review-text { font-size: 13.5px; line-height: 1.55; color: #cfd5da; letter-spacing: -0.1px; }
 
-  /* СТРАНИЦА ЗАКАЗА */
-  .order-brief-status {
-    display: flex; align-items: center; gap: 14px;
-    padding: 18px;
-    background: linear-gradient(135deg, rgba(255,180,0,0.12), rgba(255,180,0,0.03));
-    border: 1px solid rgba(255,180,0,0.3);
-    border-radius: 20px;
-    margin-bottom: 18px;
-    position: relative; overflow: hidden;
-  }
+  .order-brief-status { display: flex; align-items: center; gap: 14px; padding: 18px; background: linear-gradient(135deg, rgba(255,180,0,0.12), rgba(255,180,0,0.03)); border: 1px solid rgba(255,180,0,0.3); border-radius: 20px; margin-bottom: 18px; position: relative; overflow: hidden; }
   .order-brief-status .obs-icon { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,180,0,0.15); border: 1px solid rgba(255,180,0,0.3); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; position: relative; }
   .order-brief-status .obs-icon svg { width: 24px; height: 24px; stroke: var(--warn); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .order-brief-status .obs-info { flex: 1; min-width: 0; }
@@ -615,28 +516,97 @@
   .order-brief-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--muted); padding: 0 4px 16px; }
   .order-brief-meta b { color: var(--text); font-weight: 700; }
   .order-brief-hint { padding: 12px 14px; background: rgba(0,232,143,0.05); border: 1px solid rgba(0,232,143,0.18); border-radius: 12px; font-size: 12px; color: #b6c0c7; line-height: 1.5; margin-bottom: 16px; }
-
   .order-empty { text-align: center; padding: 80px 20px; color: var(--muted); }
   .order-empty .ico { width: 84px; height: 84px; margin: 0 auto 18px; border-radius: 26px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
   .order-empty .ico svg { width: 38px; height: 38px; stroke: var(--muted-2); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .order-empty .title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
   .order-empty .sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
 
-  .toast {
-    position: fixed;
-    bottom: calc(var(--nav-h) + 34px + var(--bot-safe));
-    left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--card-2); color: #fff; padding: 11px 18px;
-    border-radius: 13px; font-size: 13px; font-weight: 600;
-    border: 1px solid var(--border-2);
-    opacity: 0; pointer-events: none; transition: all 0.25s;
-    z-index: 10000; white-space: nowrap;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
+  /* КАЗИНО */
+  .modal.casino-modal { max-height: 94vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 20px 18px 18px; }
+  .modal.casino-modal::-webkit-scrollbar { width: 0; }
+
+  .casino-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; position: relative; z-index: 1; }
+  .casino-thumb { width: 58px; height: 58px; border-radius: 14px; background: #fff; flex: 0 0 auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .casino-thumb img { width: 100%; height: 100%; object-fit: contain; }
+  .casino-info { flex: 1; min-width: 0; }
+  .casino-info .name { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; margin-bottom: 3px; line-height: 1.2; }
+  .casino-info .price { font-size: 13px; color: var(--muted); }
+  .casino-info .price b { color: var(--accent); font-weight: 800; font-size: 15px; }
+
+  .casino-wheel-wrap { position: relative; margin: 0 -18px 16px; padding: 0 18px; }
+  .casino-wheel-frame { position: relative; height: 120px; border-radius: 18px; background: linear-gradient(90deg, rgba(255,138,0,0.08) 0%, rgba(229,46,113,0.08) 100%); border: 1px solid rgba(255,138,0,0.3); overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.5); }
+  .casino-wheel-frame::before,
+  .casino-wheel-frame::after { content: ""; position: absolute; top: 0; bottom: 0; width: 44px; pointer-events: none; z-index: 3; }
+  .casino-wheel-frame::before { left: 0; background: linear-gradient(90deg, #0f1418 0%, transparent 100%); }
+  .casino-wheel-frame::after  { right: 0; background: linear-gradient(270deg, #0f1418 0%, transparent 100%); }
+
+  .casino-wheel-viewport { position: absolute; inset: 0; overflow: hidden; }
+  .casino-wheel-strip { position: absolute; top: 0; left: 0; height: 100%; display: flex; flex-direction: row; align-items: center; will-change: transform; }
+  .casino-slot { width: 80px; height: 100%; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .casino-slot-inner { width: 72px; height: 72px; border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.4); overflow: hidden; box-sizing: border-box; }
+
+  .casino-slot.win .casino-slot-inner { background: #ffffff; border-color: rgba(0,232,143,0.65); box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 16px rgba(0,232,143,0.35); padding: 4px; }
+  .casino-slot.win .casino-slot-inner img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+  .casino-slot.win .casino-slot-inner svg { width: 60%; height: 60%; fill: var(--accent); opacity: 0.7; }
+
+  .casino-slot.lose .casino-slot-inner { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: rgba(255,255,255,0.22); }
+  .casino-slot.lose .casino-slot-inner svg { width: 30%; height: 30%; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  .casino-wheel-pointer { position: absolute; left: 50%; top: 0; bottom: 0; transform: translateX(-50%); width: 82px; pointer-events: none; z-index: 2; background: linear-gradient(90deg, rgba(0,232,143,0.05), rgba(0,232,143,0.10), rgba(0,232,143,0.05)); box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent), inset 0 0 16px rgba(0,232,143,0.15); }
+  .casino-wheel-pointer::before,
+  .casino-wheel-pointer::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-style: solid; filter: drop-shadow(0 0 4px rgba(0,232,143,0.6)); }
+  .casino-wheel-pointer::before { top: -1px; border-width: 12px 9px 0 9px; border-color: var(--accent) transparent transparent transparent; }
+  .casino-wheel-pointer::after { bottom: -1px; border-width: 0 9px 12px 9px; border-color: transparent transparent var(--accent) transparent; }
+
+  .casino-slider-wrap { position: relative; z-index: 1; margin-bottom: 16px; }
+  .casino-slider-labels { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
+  .casino-chance { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.6px; }
+  .casino-slider { width: 100%; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #ff4d5e 0%, #ffb400 50%, #00e88f 100%); outline: none; margin-bottom: 6px; }
+  .casino-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-shadow: 0 4px 14px rgba(0,232,143,0.5); cursor: pointer; }
+  .casino-slider::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-shadow: 0 4px 14px rgba(0,232,143,0.5); cursor: pointer; }
+  .casino-slider-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted-2); font-weight: 600; }
+
+  .casino-price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 14px; position: relative; z-index: 1; }
+  .casino-price-row .lbl { font-size: 13px; color: var(--muted); }
+  .casino-price-row .val { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; background: linear-gradient(140deg, #00e88f, #00b8ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .casino-spin-btn { width: 100%; margin-top: 4px; background: linear-gradient(120deg, #ff8a00 0%, #e52e71 100%); color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; transition: transform 0.15s, box-shadow 0.2s, filter 0.2s; box-shadow: 0 8px 24px rgba(229,46,113,0.35); position: relative; z-index: 1; letter-spacing: -0.2px; }
+  .casino-spin-btn:active { transform: scale(0.98); filter: brightness(1.05); box-shadow: 0 4px 14px rgba(229,46,113,0.5); }
+  .casino-spin-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .casino-demo-btn { width: 100%; margin-top: 8px; background: transparent; color: var(--warn); border: 1.5px solid rgba(255,180,0,0.5); border-radius: 14px; padding: 12px; font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; position: relative; z-index: 1; }
+  .casino-demo-btn:active { background: rgba(255,180,0,0.1); }
+  .casino-demo-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .casino-cancel-btn { width: 100%; margin-top: 6px; background: transparent; color: var(--muted); border: none; padding: 12px; font-size: 13.5px; font-weight: 600; font-family: inherit; cursor: pointer; position: relative; z-index: 1; }
+  .casino-cancel-btn:active { color: var(--text); }
+
+  .casino-result { display: none; margin-top: 14px; padding: 16px; border-radius: 16px; text-align: center; position: relative; z-index: 1; animation: resultIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .casino-result.show { display: block; }
+  @keyframes resultIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  .casino-result.win { background: linear-gradient(135deg, rgba(0,232,143,0.15), rgba(0,184,255,0.08)); border: 1px solid rgba(0,232,143,0.4); }
+  .casino-result.lose { background: linear-gradient(135deg, rgba(255,77,94,0.12), rgba(229,46,113,0.08)); border: 1px solid rgba(255,77,94,0.35); }
+  .casino-result.demo { background: linear-gradient(135deg, rgba(255,180,0,0.12), rgba(255,138,0,0.06)); border: 1px solid rgba(255,180,0,0.35); }
+  .casino-result .cr-title { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; color: var(--text); }
+  .casino-result.win .cr-title { color: var(--accent); }
+  .casino-result.lose .cr-title { color: #ffb3bb; }
+  .casino-result.demo .cr-title { color: var(--warn); }
+  .casino-result .cr-sub { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .toast { position: fixed; bottom: calc(var(--nav-h) + 34px + var(--bot-safe)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card-2); color: #fff; padding: 11px 18px; border-radius: 13px; font-size: 13px; font-weight: 600; border: 1px solid var(--border-2); opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 10000; max-width: calc(100vw - 32px); text-align: center; line-height: 1.4; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+
+<!-- ===== ЗАГРУЗОЧНЫЙ ЭКРАН ===== -->
+<div id="preloader">
+  <div class="pre-logo">Mo77art split</div>
+  <div class="pre-bar"><div class="pre-bar-fill" id="preFill"></div></div>
+  <div class="pre-percent" id="prePercent">0%</div>
+</div>
+<!-- ===== / ЗАГРУЗОЧНЫЙ ЭКРАН ===== -->
 
 <header>
   <div class="logo">Mo77art split</div>
@@ -729,7 +699,7 @@
 <section class="page" id="page-support">
   <div class="page-title">Техподдержка</div>
 
-  <a class="support-card" href="https://t.me/otzivyscam" target="_blank" rel="noopener">
+  <a class="support-card" href="https://t.me/mo77art" target="_blank" rel="noopener">
     <div class="ic">
       <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
     </div>
@@ -789,6 +759,10 @@
     <div class="sub">Укажите город, улицу и дом в одном поле</div>
     <label for="pvzAddress">Адрес ПВЗ</label>
     <input id="pvzAddress" type="text" placeholder="Москва, ул. Ленина, 15" autocomplete="off">
+    <div class="pvz-error" id="pvzError">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="pvzErrorText">Ошибка</span>
+    </div>
     <button class="save-btn" id="pvzSave" onclick="savePvz()">Сохранить</button>
     <button class="cancel-btn" onclick="closePvz()">Отмена</button>
   </div>
@@ -796,7 +770,6 @@
 
 <div class="modal-overlay" id="checkoutModal">
   <div class="modal checkout-modal">
-
     <div id="coStep1">
       <div class="modal-icon">
         <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -847,7 +820,6 @@
     </div>
 
     <div id="coStep2" style="display:none;">
-
       <div class="pay-timer" id="payTimer">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span class="pay-timer-text">Осталось на отправку чека:</span>
@@ -879,11 +851,126 @@
         <div class="receipt-hint">Принимаются PNG, JPG, HEIC. Чек не должен содержать лишних данных — только сумму и дату.</div>
       </div>
 
-      <a class="pay-go-btn disabled" id="sendReceiptBtn" href="https://t.me/otzivyscam" target="_blank" rel="noopener" onclick="onSendReceipt(event)">
+      <a class="pay-go-btn disabled" id="sendReceiptBtn" href="https://t.me/mo77art" target="_blank" rel="noopener" onclick="onSendReceipt(event)">
         <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
         Отправить чек в Telegram
       </a>
       <button class="cancel-btn cancel-danger" onclick="cancelOrder()">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="casinoModal">
+  <div class="modal casino-modal">
+
+    <div id="casinoStep1">
+      <div class="casino-head">
+        <div class="casino-thumb" id="casinoThumb"></div>
+        <div class="casino-info">
+          <div class="name" id="casinoName">Товар</div>
+          <div class="price">Цена: <b id="casinoProductPrice">0 ₽</b></div>
+        </div>
+      </div>
+
+      <div class="casino-wheel-wrap">
+        <div class="casino-wheel-frame">
+          <div class="casino-wheel-viewport">
+            <div class="casino-wheel-strip" id="casinoStrip"></div>
+          </div>
+          <div class="casino-wheel-pointer"></div>
+        </div>
+      </div>
+
+      <div class="casino-slider-wrap">
+        <div class="casino-slider-labels">
+          <span>Шанс выигрыша</span>
+          <span class="casino-chance" id="casinoChance">10%</span>
+        </div>
+        <input type="range" class="casino-slider" id="casinoSlider" min="10" max="50" step="1" value="10" oninput="onCasinoSliderChange(this.value)">
+        <div class="casino-slider-scale">
+          <span>10%</span>
+          <span>20%</span>
+          <span>30%</span>
+          <span>40%</span>
+          <span>50%</span>
+        </div>
+      </div>
+
+      <div class="casino-price-row">
+        <span class="lbl">Цена прокрута</span>
+        <span class="val" id="casinoPriceValue">0 ₽</span>
+      </div>
+
+      <button class="casino-spin-btn" id="casinoSpinBtn" onclick="openCasinoPayment()">Крутить</button>
+      <button class="casino-demo-btn" id="casinoDemoBtn" onclick="spinCasino(true)">Демо-прокрут (бесплатно)</button>
+
+      <div class="casino-result" id="casinoResult"></div>
+
+      <button class="casino-cancel-btn" onclick="closeCasino()">Отмена</button>
+    </div>
+
+    <div id="casinoStep2" style="display:none;">
+      <div class="casino-head">
+        <div class="casino-thumb" id="casinoThumb2"></div>
+        <div class="casino-info">
+          <div class="name" id="casinoName2">Товар</div>
+          <div class="price">К оплате: <b id="casinoPayAmount">0 ₽</b></div>
+        </div>
+      </div>
+
+      <div class="payment-methods">
+        <button class="pay-method active" data-method="card" type="button">
+          <div class="pay-method-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2.5"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+              <line x1="6" y1="15" x2="10" y2="15"/>
+            </svg>
+          </div>
+          <div class="pay-method-info">
+            <div class="pay-method-title">Картой</div>
+            <div class="pay-method-desc">Перевод на банковскую карту</div>
+          </div>
+          <div class="pay-method-radio"></div>
+        </button>
+      </div>
+
+      <div class="pay-details">
+        <div class="pay-details-title">Реквизиты для перевода</div>
+        <div class="pay-row">
+          <div class="pay-label">Номер карты</div>
+          <div class="pay-value-row">
+            <div class="pay-value mono">9860 1606 3338 7552</div>
+            <button class="copy-btn" onclick="copyText('9860160633387552', this)">Копировать</button>
+          </div>
+        </div>
+        <div class="pay-row">
+          <div class="pay-label">Получатель</div>
+          <div class="pay-value-row"><div class="pay-value">Jumadurdiyev Jasurbek</div></div>
+        </div>
+        <div class="pay-row">
+          <div class="pay-label">Банк</div>
+          <div class="pay-value-row"><div class="pay-value">Hamkor Bank</div></div>
+        </div>
+      </div>
+
+      <div class="receipt-section">
+        <div class="receipt-section-title">Фото чека</div>
+        <input type="file" id="casinoReceiptInput" accept="image/*" style="display:none;" onchange="handleCasinoReceipt(event)">
+        <div class="receipt-upload" id="casinoReceiptBox" onclick="document.getElementById('casinoReceiptInput').click()">
+          <div class="receipt-upload-icon" id="casinoReceiptIcon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="receipt-upload-info">
+            <div class="receipt-upload-title" id="casinoReceiptTitle">Загрузить чек</div>
+            <div class="receipt-upload-desc" id="casinoReceiptDesc">Обязательно для прокрута</div>
+          </div>
+          <div class="receipt-upload-action" id="casinoReceiptAction">Выбрать</div>
+        </div>
+      </div>
+
+      <button class="casino-spin-btn disabled" id="casinoConfirmBtn" onclick="confirmCasinoAndSpin()">Я оплатил → Крутить</button>
+      <button class="casino-cancel-btn" onclick="backToCasinoSetup()">← Назад</button>
     </div>
 
   </div>
@@ -891,55 +978,74 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Telegram SDK грузится в самом конце — до этого момента прелоадер уже на экране -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 /* ============================================================
-   TELEGRAM WEBAPP INIT
+   ПРЕЛОАДЕР — управление прогрессом
    ============================================================ */
+(function() {
+  var fillEl = document.getElementById('preFill');
+  var percentEl = document.getElementById('prePercent');
+  var progress = 0;
+  var ready = false;
+  var intervalId = null;
+
+  function render() {
+    var p = Math.min(100, Math.round(progress));
+    if (fillEl) fillEl.style.width = p + '%';
+    if (percentEl) percentEl.textContent = p + '%';
+  }
+
+  intervalId = setInterval(function() {
+    if (ready) return;
+    progress += (88 - progress) * 0.08;
+    if (progress > 87) progress = 87;
+    render();
+  }, 60);
+
+  window.__finishPreloader = function() {
+    if (ready) return;
+    ready = true;
+    clearInterval(intervalId);
+    progress = 100;
+    render();
+    setTimeout(function() {
+      var pre = document.getElementById('preloader');
+      if (!pre) return;
+      pre.classList.add('hide');
+      setTimeout(function() {
+        if (pre && pre.parentNode) pre.parentNode.removeChild(pre);
+      }, 700);
+    }, 350);
+  };
+})();
+
+/* TELEGRAM WEBAPP INIT */
 var tg = null;
 var tgUser = null;
-
 try {
   if (window.Telegram && window.Telegram.WebApp) {
     tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-
-    // Цвета под тему Telegram
     try { tg.setHeaderColor('#08090b'); } catch (e) {}
     try { tg.setBackgroundColor('#08090b'); } catch (e) {}
-
-    // Отключаем свайп вниз (закрытие) на iOS
     try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
     try { if (tg.enableClosingConfirmation) tg.enableClosingConfirmation(); } catch (e) {}
-
-    // Получаем данные пользователя
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      tgUser = tg.initDataUnsafe.user;
-      console.log('Telegram user:', tgUser);
-    }
-
-    // Кнопка "Назад" в шапке Telegram — управляем сами
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) { tgUser = tg.initDataUnsafe.user; }
     if (tg.BackButton) {
       tg.BackButton.onClick(function() {
         var page = document.querySelector('.page.active');
         if (!page) return;
-        if (page.id === 'page-order') {
-          switchPage('cart');
-        } else if (page.id === 'page-cart' || page.id === 'page-reviews' || page.id === 'page-support') {
-          switchPage('assortment');
-        }
+        if (page.id === 'page-order') switchPage('cart');
+        else if (page.id === 'page-cart' || page.id === 'page-reviews' || page.id === 'page-support') switchPage('assortment');
       });
     }
-  } else {
-    console.log('Открыто не в Telegram (обычный браузер)');
   }
-} catch (e) {
-  console.log('Telegram WebApp не доступен:', e);
-}
+} catch (e) {}
 
-/* ============================================================
-   ТОВАРЫ
-   ============================================================ */
+/* ТОВАРЫ */
 var PRODUCTS = {
   iphone: [
     { id: 'ip16-128', name: 'iPhone 16', memory: '128 GB', color: '#2c2c2e', colorName: 'Black', image: 'https://i.imgur.com/xpv1aI5.jpeg', oldPrice: 69990, newPrice: 20990 },
@@ -967,42 +1073,35 @@ function findProduct(id) {
 function isInCart(id) { return cart.some(function(i) { return i.id === id; }); }
 
 var ANDROID_PLACEHOLDER =
-  '<div class="placeholder-icon">' +
-    '<svg viewBox="0 0 24 24">' +
-      '<path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-1.38-.63-2.94-.98-4.62-.98-1.7 0-3.28.36-4.68 1L5.26 5.7c-.18-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C2.87 11.42.9 14.55.9 18.14h22.2c0-3.59-1.97-6.72-5.5-8.66zM7 15.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/>' +
-    '</svg>' +
-  '</div>';
+  '<div class="placeholder-icon"><svg viewBox="0 0 24 24"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-1.38-.63-2.94-.98-4.62-.98-1.7 0-3.28.36-4.68 1L5.26 5.7c-.18-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C2.87 11.42.9 14.55.9 18.14h22.2c0-3.59-1.97-6.72-5.5-8.66zM7 15.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg></div>';
 
 function renderProductImage(p) {
   if (p.image) return '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy" referrerpolicy="no-referrer">';
   return ANDROID_PLACEHOLDER;
 }
 
-/* ============================================================
-   КАТЕГОРИИ И ТОВАРЫ
-   ============================================================ */
+/* КАТЕГОРИИ И ТОВАРЫ */
 var currentCat = null;
 
 function renderProducts(catId) {
   currentCat = catId;
   var list = PRODUCTS[catId] || [];
   var cont = document.getElementById('prodContainer');
-
   if (!list.length) {
     cont.innerHTML = '<div class="empty"><div class="ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg></div><div class="title">Скоро тут появятся товары</div><div class="sub">Мы уже готовим ассортимент</div></div>';
     return;
   }
-
   cont.innerHTML = '<div class="grid">' + list.map(function(p) {
     var discount = Math.round((1 - p.newPrice / p.oldPrice) * 100);
     var inCart = isInCart(p.id);
-    var btn = inCart
-      ? '<button class="add-btn in-cart" disabled>В корзине</button>'
-      : '<button class="add-btn" onclick="addToCart(\'' + p.id + '\')">В корзину</button>';
+    var btn = inCart ? '<button class="add-btn in-cart" disabled>В корзине</button>' : '<button class="add-btn" onclick="addToCart(\'' + p.id + '\')">В корзину</button>';
     return ''
       + '<div class="product">'
       +   '<div class="product-img">'
       +     '<span class="sale-badge">−' + discount + '%</span>'
+      +     '<button class="casino-btn" onclick="openCasino(\'' + p.id + '\')" aria-label="Испытать удачу">'
+      +       '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6 18 6.67 18 7.5 17.33 9 16.5 9z"/></svg>'
+      +     '</button>'
       +     renderProductImage(p)
       +   '</div>'
       +   '<div class="product-body">'
@@ -1042,42 +1141,92 @@ function refreshProductsIfOpen() {
   if (pv && pv.style.display !== 'none' && currentCat) renderProducts(currentCat);
 }
 
-/* ============================================================
-   ПВЗ
-   ============================================================ */
+/* ПВЗ */
+var RU_CITIES = ['москва','мск','санкт-петербург','спб','питер','новосибирск','екатеринбург','казань','нижний новгород','челябинск','самара','омск','ростов-на-дону','ростов','уфа','красноярск','воронеж','пермь','волгоград','краснодар','саратов','тюмень','тольятти','ижевск','барнаул','ульяновск','иркутск','хабаровск','ярославль','владивосток','махачкала','томск','оренбург','кемерово','новокузнецк','рязань','астрахань','набережные челны','пенза','липецк','киров','чебоксары','тула','калининград','балашиха','курск','севастополь','сочи','ставрополь','улан-удэ','тверь','магнитогорск','иваново','брянск','белгород','сургут','владимир','нижний тагил','архангельск','чита','калуга','смоленск','волжский','курган','череповец','орёл','орел','саранск','владикавказ','мурманск','якутск','тамбов','грозный','стерлитамак','кострома','петрозаводск','нижневартовск','йошкар-ола','новороссийск','химки','таганрог','комсомольск-на-амуре','сыктывкар','нальчик','нижнекамск','шахты','дзержинск','орск','братск','ангарск','благовещенск','энгельс','королёв','королев','великий новгород','старый оскол','псков','мытищи','люберцы','южно-сахалинск','армавир','рыбинск','березники','подольск','салават','абакан','норильск','миасс','уссурийск','майкоп','одинцово','красногорск','петропавловск-камчатский','муром','вологда','северодвинск','ачинск','серпухов','обнинск','златоуст','кисловодск','пятигорск','домодедово','ноябрьск','новочебоксарск','первоуральск','нефтекамск','каменск-уральский','сызрань','зеленодольск','ковров','ленинск-кузнецкий','копейск','батайск','новочеркасск','дербент','каспийск','хасавюрт','буйнакск','кизляр'];
+
+var STREET_TYPES = ['ул','улица','проспект','пр-т','просп','пр','переулок','пер','шоссе','шос','бульвар','бул','б-р','бр','площадь','пл','набережная','наб','проезд','пр-д','прд','аллея','алл','тупик','туп','тракт','микрорайон','мкр','квартал','кв-л','линия','просек','просека','дорога','дор'];
+
+function normStr(s) { return (s || '').toLowerCase().replace(/\./g, '').replace(/\s+/g, ' ').trim(); }
+function hasStreetType(text) {
+  var words = normStr(text).split(/[\s,]+/);
+  for (var i = 0; i < words.length; i++) { if (STREET_TYPES.indexOf(words[i]) !== -1) return true; }
+  return false;
+}
+function hasHouseNumber(t) { return /\d/.test(t || ''); }
+function hasStreetName(t) { return (t || '').replace(/[^а-яёa-z]/gi, '').length >= 2; }
+
+function validatePvz(raw) {
+  var s = (raw || '').trim();
+  if (!s) return { ok: false, msg: 'Введите адрес ПВЗ' };
+  var parts = s.split(',').map(function(x) { return x.trim(); }).filter(Boolean);
+  if (parts.length < 3) return { ok: false, msg: 'Введите адрес в формате: «Город, улица, дом». Например: «Москва, ул. Ленина, 15»' };
+  var city = parts[0];
+  var street = parts.slice(1, parts.length - 1).join(', ');
+  var house = parts[parts.length - 1];
+  var cityNorm = normStr(city);
+  if (cityNorm.length < 3) return { ok: false, msg: 'Название города слишком короткое' };
+  if (RU_CITIES.indexOf(cityNorm) === -1) return { ok: false, msg: 'Город «' + city + '» не найден. Проверьте написание' };
+  if (!hasStreetName(street)) return { ok: false, msg: 'Укажите название улицы (например: ул. Ленина)' };
+  if (!hasStreetType(street)) return { ok: false, msg: 'Улица «' + street + '» не распознана. Укажите тип: ул., проспект, переулок' };
+  if (!hasHouseNumber(house)) return { ok: false, msg: 'Укажите номер дома' };
+  if (house.length > 10) return { ok: false, msg: 'Номер дома слишком длинный' };
+  return { ok: true, normalized: city + ', ' + street + ', ' + house };
+}
+
+function showPvzError(msg) {
+  var b = document.getElementById('pvzError');
+  var t = document.getElementById('pvzErrorText');
+  var i = document.getElementById('pvzAddress');
+  if (b) b.classList.add('show');
+  if (t) t.textContent = msg;
+  if (i) i.classList.add('input-error');
+}
+function hidePvzError() {
+  var b = document.getElementById('pvzError');
+  var i = document.getElementById('pvzAddress');
+  if (b) b.classList.remove('show');
+  if (i) i.classList.remove('input-error');
+}
+
 var pvzData = null;
 try { pvzData = JSON.parse(localStorage.getItem('mo77_pvz') || 'null'); } catch (e) { pvzData = null; }
 
 window.openPvz = function() {
   try {
     var modal = document.getElementById('pvzModal');
-    if (!modal) return;
-    if (modal.classList.contains('show')) return;
+    if (!modal || modal.classList.contains('show')) return;
     var addrEl = document.getElementById('pvzAddress');
     if (addrEl) addrEl.value = (pvzData && pvzData.address) ? pvzData.address : '';
+    hidePvzError();
     void modal.offsetHeight;
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() { modal.classList.add('show'); });
-    });
+    requestAnimationFrame(function() { requestAnimationFrame(function() { modal.classList.add('show'); }); });
     setTimeout(function() { if (addrEl) addrEl.focus(); }, 320);
-  } catch (err) { console.error('Ошибка openPvz:', err); }
+  } catch (err) {}
 };
 
 window.closePvz = function() {
   var modal = document.getElementById('pvzModal');
   if (!modal) return;
   modal.classList.remove('show');
+  hidePvzError();
 };
 
 window.savePvz = function() {
-  var address = (document.getElementById('pvzAddress').value || '').trim();
-  if (!address) { window.toast('Введите адрес ПВЗ'); return; }
-  pvzData = { address: address };
+  var raw = (document.getElementById('pvzAddress').value || '').trim();
+  var r = validatePvz(raw);
+  if (!r.ok) {
+    showPvzError(r.msg);
+    try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error'); } catch (e) {}
+    return;
+  }
+  hidePvzError();
+  pvzData = { address: r.normalized };
   try { localStorage.setItem('mo77_pvz', JSON.stringify(pvzData)); } catch (e) {}
   var el = document.getElementById('pvzValue');
-  if (el) el.textContent = address;
+  if (el) el.textContent = r.normalized;
   window.closePvz();
   window.toast('ПВЗ сохранён ✓');
+  try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
 };
 
 document.addEventListener('click', function(e) {
@@ -1093,12 +1242,14 @@ document.getElementById('pvzModal').addEventListener('click', function(e) {
   if (e.target === this) window.closePvz();
 });
 
-/* ============================================================
-   КОРЗИНА
-   ============================================================ */
+document.addEventListener('DOMContentLoaded', function() {
+  var addrEl = document.getElementById('pvzAddress');
+  if (addrEl) addrEl.addEventListener('input', hidePvzError);
+});
+
+/* КОРЗИНА */
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('mo77_cart') || '[]') || []; } catch (e) { cart = []; }
-
 function saveCart() { try { localStorage.setItem('mo77_cart', JSON.stringify(cart)); } catch (e) {} }
 
 window.addToCart = function(id) {
@@ -1133,12 +1284,9 @@ function updateBadge() {
   b.style.display = count > 0 ? 'flex' : 'none';
 }
 
-/* ============================================================
-   КНОПКА ЗАКАЗА
-   ============================================================ */
+/* ЗАКАЗЫ */
 var ordersCache = [];
 try { ordersCache = JSON.parse(localStorage.getItem('mo77_orders') || '[]') || []; } catch (e) { ordersCache = []; }
-
 function getOrders() {
   try {
     var o = JSON.parse(localStorage.getItem('mo77_orders') || '[]') || [];
@@ -1146,20 +1294,15 @@ function getOrders() {
   } catch (e) {}
   return ordersCache;
 }
-
 function saveOrders(arr) {
   ordersCache = arr;
   try { localStorage.setItem('mo77_orders', JSON.stringify(arr)); } catch (e) {}
 }
-
 function updateOrdersBadge() {
   var badge = document.getElementById('ordersBadge');
   if (!badge) return;
   var orders = getOrders();
-  var hasActive = false;
-  for (var i = 0; i < orders.length; i++) {
-    if (orders[i].status !== 'delivered') { hasActive = true; break; }
-  }
+  var hasActive = orders.some(function(o) { return o.status !== 'delivered'; });
   if (hasActive) badge.classList.add('active');
   else badge.classList.remove('active');
 }
@@ -1167,58 +1310,41 @@ function updateOrdersBadge() {
 function renderCart() {
   var c = document.getElementById('cartContent');
   if (!c) return;
-
   if (!cart.length) {
     c.innerHTML = '<div class="empty"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 11.5a2 2 0 0 0 2 1.5h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg></div><div class="title">Корзина пустая</div><div class="sub">Добавьте товары из ассортимента</div><button class="cta" onclick="goToAssortment()">Перейти в ассортимент</button></div>';
     return;
   }
-
-  var items = cart.map(function(i) {
-    var p = findProduct(i.id);
-    return { id: i.id, qty: i.qty, product: p };
-  }).filter(function(i) { return i.product; });
-
+  var items = cart.map(function(i) { return { id: i.id, qty: i.qty, product: findProduct(i.id) }; }).filter(function(i) { return i.product; });
   var totalQty = items.reduce(function(s, i) { return s + i.qty; }, 0);
   var totalOld = items.reduce(function(s, i) { return s + i.product.oldPrice * i.qty; }, 0);
   var totalNew = items.reduce(function(s, i) { return s + i.product.newPrice * i.qty; }, 0);
   var totalDiscount = totalOld - totalNew;
   var totalDiscountPct = totalOld > 0 ? Math.round((totalDiscount / totalOld) * 100) : 0;
-
-  var html = '';
-  html += '<div class="cart-summary-top"><div class="cnt"><b>' + totalQty + '</b> ' + pluralize(totalQty, ['товар', 'товара', 'товаров']) + '</div><button class="clear" onclick="clearCart()">Очистить</button></div>';
-
+  var html = '<div class="cart-summary-top"><div class="cnt"><b>' + totalQty + '</b> ' + pluralize(totalQty, ['товар', 'товара', 'товаров']) + '</div><button class="clear" onclick="clearCart()">Очистить</button></div>';
   html += items.map(function(it) {
     var p = it.product;
     var disc = Math.round((1 - p.newPrice / p.oldPrice) * 100);
     return '<div class="cart-item"><div class="thumb"><span class="sale-mini">−' + disc + '%</span>' + renderProductImage(p) + '</div><div class="info"><div class="name">' + p.name + '</div><div class="meta"><span class="color-chip"><span class="color-dot" style="background:' + p.color + '"></span>' + p.colorName + '</span><span class="mem-tag">' + p.memory + '</span></div><div class="price-line"><span class="price-old">' + formatPrice(p.oldPrice) + '</span><span class="price-new">' + formatPrice(p.newPrice) + '</span></div></div><button class="remove" onclick="removeFromCart(\'' + p.id + '\')" aria-label="Удалить"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
   }).join('');
-
   html += '<div class="cart-total-card"><div class="row"><span>Товары (' + totalQty + ')</span><b>' + formatPrice(totalOld) + '</b></div><div class="row discount"><span>Скидка −' + totalDiscountPct + '%</span><b>−' + formatPrice(totalDiscount) + '</b></div><div class="row divider"></div><div class="total-row"><span class="lbl">Итого</span><span class="sum">' + formatPrice(totalNew) + '</span></div><button class="checkout-btn" onclick="checkout()">Оформить заказ</button><div class="delivery-note"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1.5"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Доставка в пункт выдачи — бесплатно</div></div>';
-
   c.innerHTML = html;
 }
 
 function pluralize(n, forms) {
-  var mod10 = n % 10, mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return forms[0];
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1];
+  var m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return forms[0];
+  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return forms[1];
   return forms[2];
 }
-
 function goToAssortment() { switchPage('assortment'); }
 
-/* ============================================================
-   ТАЙМЕР
-   ============================================================ */
-var PAY_TIMEOUT = 5 * 60;
-var payTimerInterval = null;
-var paySecondsLeft = 0;
-
+/* ТАЙМЕР */
+var PAY_TIMEOUT = 5 * 60, payTimerInterval = null, paySecondsLeft = 0;
 function startPaymentTimer() {
   stopPaymentTimer();
   paySecondsLeft = PAY_TIMEOUT;
-  var badge = document.getElementById('payTimer');
-  if (badge) badge.classList.add('show');
+  var b = document.getElementById('payTimer');
+  if (b) b.classList.add('show');
   renderPaymentTimer();
   payTimerInterval = setInterval(function() {
     paySecondsLeft--;
@@ -1226,25 +1352,21 @@ function startPaymentTimer() {
     else renderPaymentTimer();
   }, 1000);
 }
-
 function stopPaymentTimer() {
   if (payTimerInterval) { clearInterval(payTimerInterval); payTimerInterval = null; }
-  var badge = document.getElementById('payTimer');
-  if (badge) badge.classList.remove('show', 'warn', 'danger');
+  var b = document.getElementById('payTimer');
+  if (b) b.classList.remove('show', 'warn', 'danger');
 }
-
 function renderPaymentTimer() {
-  var badge = document.getElementById('payTimer');
-  var text = document.getElementById('payTimerText');
-  if (!badge || !text) return;
-  var m = Math.floor(paySecondsLeft / 60);
-  var s = paySecondsLeft % 60;
-  text.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-  badge.classList.remove('warn', 'danger');
-  if (paySecondsLeft <= 30) badge.classList.add('danger');
-  else if (paySecondsLeft <= 90) badge.classList.add('warn');
+  var b = document.getElementById('payTimer');
+  var t = document.getElementById('payTimerText');
+  if (!b || !t) return;
+  var m = Math.floor(paySecondsLeft / 60), s = paySecondsLeft % 60;
+  t.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  b.classList.remove('warn', 'danger');
+  if (paySecondsLeft <= 30) b.classList.add('danger');
+  else if (paySecondsLeft <= 90) b.classList.add('warn');
 }
-
 function onPaymentTimeout() {
   stopPaymentTimer();
   resetReceipt();
@@ -1252,9 +1374,7 @@ function onPaymentTimeout() {
   window.toast('Время на отправку чека истекло');
 }
 
-/* ============================================================
-   ОФОРМЛЕНИЕ
-   ============================================================ */
+/* ОФОРМЛЕНИЕ ЗАКАЗА */
 var selectedPayment = null;
 
 window.checkout = function() {
@@ -1265,12 +1385,9 @@ window.checkout = function() {
   resetReceipt();
   renderCheckout();
   var modal = document.getElementById('checkoutModal');
-  if (!modal) return;
-  if (modal.classList.contains('show')) return;
+  if (!modal || modal.classList.contains('show')) return;
   void modal.offsetHeight;
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() { modal.classList.add('show'); });
-  });
+  requestAnimationFrame(function() { requestAnimationFrame(function() { modal.classList.add('show'); }); });
 };
 
 window.closeCheckout = function() {
@@ -1285,25 +1402,18 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 });
 
 function renderCheckout() {
-  var items = cart.map(function(i) {
-    var p = findProduct(i.id);
-    return { id: i.id, qty: i.qty, product: p };
-  }).filter(function(i) { return i.product; });
-
+  var items = cart.map(function(i) { return { id: i.id, qty: i.qty, product: findProduct(i.id) }; }).filter(function(i) { return i.product; });
   var totalQty = items.reduce(function(s, i) { return s + i.qty; }, 0);
   var totalNew = items.reduce(function(s, i) { return s + i.product.newPrice * i.qty; }, 0);
-
   var html = '<div class="co-items">';
   html += items.map(function(it) {
     var p = it.product;
     var img = p.image ? '<img src="' + p.image + '" alt="" referrerpolicy="no-referrer">' : '';
     return '<div class="co-item"><div class="co-thumb">' + img + '</div><div class="co-name">' + p.name + '</div><div class="co-qty">×' + it.qty + '</div><div class="co-price">' + formatPrice(p.newPrice * it.qty) + '</div></div>';
   }).join('');
-  html += '</div>';
-  html += '<div class="co-divider"></div>';
+  html += '</div><div class="co-divider"></div>';
   html += '<div class="co-total"><span>Итого (' + totalQty + ')</span><span class="co-total-sum">' + formatPrice(totalNew) + '</span></div>';
   document.getElementById('coSummary').innerHTML = html;
-
   var pvzHtml;
   if (pvzData && pvzData.address) {
     pvzHtml = '<div class="co-pvz"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="co-pvz-text"><b>Пункт выдачи</b>' + pvzData.address + '</div><button class="co-pvz-btn" onclick="closeCheckout(); openPvz();">Изменить</button></div>';
@@ -1311,15 +1421,14 @@ function renderCheckout() {
     pvzHtml = '<div class="co-pvz warn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="co-pvz-text"><b>ПВЗ не указан</b>Укажите адрес, куда доставить заказ</div><button class="co-pvz-btn" onclick="closeCheckout(); openPvz();">Указать</button></div>';
   }
   document.getElementById('coPvz').innerHTML = pvzHtml;
-
   document.getElementById('payDetails').innerHTML = '';
   document.getElementById('payConfirm').style.display = 'none';
-  document.querySelectorAll('.pay-method').forEach(function(m) { m.classList.remove('active'); });
+  document.querySelectorAll('#checkoutModal .pay-method').forEach(function(m) { m.classList.remove('active'); });
 }
 
 window.selectPayMethod = function(method) {
   selectedPayment = method;
-  document.querySelectorAll('.pay-method').forEach(function(m) {
+  document.querySelectorAll('#checkoutModal .pay-method').forEach(function(m) {
     if (m.dataset.method === method) m.classList.add('active');
     else m.classList.remove('active');
   });
@@ -1338,7 +1447,6 @@ function getCardDetailsHtml() {
     + '<div class="pay-hint">Переведите точную сумму заказа на карту и нажмите «Я оплатил(а)». Затем загрузите фото чека.</div>'
     + '</div>';
 }
-
 function getCryptoDetailsHtml() {
   return '<div class="pay-details">'
     + '<div class="pay-details-title">Оплата через xRocket</div>'
@@ -1349,13 +1457,12 @@ function getCryptoDetailsHtml() {
 
 window.copyText = function(text, btn) {
   var done = false;
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); done = true; }
-  } catch (e) {}
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); done = true; } } catch (e) {}
   if (!done) {
     try {
       var ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.setAttribute('readonly', '');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      ta.setAttribute('readonly', '');
       document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
       document.execCommand('copy'); document.body.removeChild(ta); done = true;
     } catch (e) {}
@@ -1365,9 +1472,7 @@ window.copyText = function(text, btn) {
     btn.textContent = done ? '✓ Скопировано' : 'Ошибка';
     btn.classList.toggle('done', done);
     btn.style.pointerEvents = 'none';
-    setTimeout(function() {
-      btn.textContent = old; btn.classList.remove('done'); btn.style.pointerEvents = '';
-    }, 1600);
+    setTimeout(function() { btn.textContent = old; btn.classList.remove('done'); btn.style.pointerEvents = ''; }, 1600);
   }
   window.toast(done ? 'Скопировано' : 'Не удалось скопировать');
 };
@@ -1376,9 +1481,7 @@ window.confirmPayment = function() {
   if (!selectedPayment) return;
   var total = cart.reduce(function(s, i) { var p = findProduct(i.id); if (!p) return s; return s + p.newPrice * i.qty; }, 0);
   var amountEl = document.getElementById('coSuccessAmount');
-  if (amountEl) {
-    amountEl.innerHTML = '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Сумма: ' + formatPrice(total);
-  }
+  if (amountEl) amountEl.innerHTML = '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Сумма: ' + formatPrice(total);
   document.getElementById('coStep1').style.display = 'none';
   document.getElementById('coStep2').style.display = 'block';
   var modal = document.querySelector('#checkoutModal .checkout-modal');
@@ -1386,29 +1489,20 @@ window.confirmPayment = function() {
   startPaymentTimer();
 };
 
-/* ============================================================
-   ЗАГРУЗКА ЧЕКА
-   ============================================================ */
-var receiptFile = null;
-var receiptObjectUrl = null;
+/* ЧЕК */
+var receiptFile = null, receiptObjectUrl = null;
 
 window.resetReceipt = function() {
   receiptFile = null;
   if (receiptObjectUrl) { try { URL.revokeObjectURL(receiptObjectUrl); } catch (e) {} receiptObjectUrl = null; }
-  var input = document.getElementById('receiptInput');
-  if (input) input.value = '';
-  var box = document.getElementById('receiptUploadBox');
-  if (box) box.classList.remove('has-photo');
+  var input = document.getElementById('receiptInput'); if (input) input.value = '';
+  var box = document.getElementById('receiptUploadBox'); if (box) box.classList.remove('has-photo');
   var icon = document.getElementById('receiptIcon');
   if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
-  var title = document.getElementById('receiptTitle');
-  if (title) title.textContent = 'Загрузить чек';
-  var desc = document.getElementById('receiptDesc');
-  if (desc) desc.textContent = 'Сфотографируйте или выберите из галереи';
-  var action = document.getElementById('receiptAction');
-  if (action) action.textContent = 'Выбрать';
-  var btn = document.getElementById('sendReceiptBtn');
-  if (btn) btn.classList.add('disabled');
+  var title = document.getElementById('receiptTitle'); if (title) title.textContent = 'Загрузить чек';
+  var desc = document.getElementById('receiptDesc'); if (desc) desc.textContent = 'Сфотографируйте или выберите из галереи';
+  var action = document.getElementById('receiptAction'); if (action) action.textContent = 'Выбрать';
+  var btn = document.getElementById('sendReceiptBtn'); if (btn) btn.classList.add('disabled');
 };
 
 window.handleReceiptSelect = function(e) {
@@ -1418,33 +1512,25 @@ window.handleReceiptSelect = function(e) {
   receiptFile = file;
   if (receiptObjectUrl) { try { URL.revokeObjectURL(receiptObjectUrl); } catch (err) {} }
   try { receiptObjectUrl = URL.createObjectURL(file); } catch (err) { receiptObjectUrl = null; }
-  var box = document.getElementById('receiptUploadBox');
-  if (box) box.classList.add('has-photo');
+  var box = document.getElementById('receiptUploadBox'); if (box) box.classList.add('has-photo');
   var icon = document.getElementById('receiptIcon');
   if (icon && receiptObjectUrl) icon.innerHTML = '<img src="' + receiptObjectUrl + '" alt="">';
-  var title = document.getElementById('receiptTitle');
-  if (title) title.textContent = 'Чек загружен';
+  var title = document.getElementById('receiptTitle'); if (title) title.textContent = 'Чек загружен';
   var desc = document.getElementById('receiptDesc');
   if (desc) desc.textContent = file.name.length > 22 ? file.name.slice(0, 20) + '…' : file.name;
-  var action = document.getElementById('receiptAction');
-  if (action) action.textContent = 'Заменить';
-  var btn = document.getElementById('sendReceiptBtn');
-  if (btn) btn.classList.remove('disabled');
+  var action = document.getElementById('receiptAction'); if (action) action.textContent = 'Заменить';
+  var btn = document.getElementById('sendReceiptBtn'); if (btn) btn.classList.remove('disabled');
   window.toast('✓ Чек готов к отправке');
 };
 
-/* ============================================================
-   ЗАКАЗ
-   ============================================================ */
+/* СОЗДАНИЕ ЗАКАЗА */
 function saveOrder(items, total) {
   var order = {
     id: Date.now(),
     items: items.map(function(it) {
       return { id: it.product.id, name: it.product.name, memory: it.product.memory, color: it.product.color, colorName: it.product.colorName, image: it.product.image, price: it.product.newPrice, qty: it.qty };
     }),
-    total: total,
-    date: Date.now(),
-    status: 'verification'
+    total: total, date: Date.now(), status: 'verification'
   };
   var orders = getOrders();
   orders.unshift(order);
@@ -1455,35 +1541,20 @@ function saveOrder(items, total) {
 function renderOrderPage(order) {
   var el = document.getElementById('orderContent');
   if (!el) return;
-
   var d = new Date(order.date);
   var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
   var timeStr = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-
   var itemsHtml = order.items.map(function(it) {
     var img = it.image ? '<img src="' + it.image + '" alt="" referrerpolicy="no-referrer">' : ANDROID_PLACEHOLDER;
     return '<div class="order-brief-item"><div class="obi-thumb">' + img + '</div><div class="obi-name">' + it.name + '</div><div class="obi-qty">×' + it.qty + '</div></div>';
   }).join('');
-
   el.innerHTML = ''
-    + '<button class="back-btn" onclick="switchPage(\'cart\')">'
-    +   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'
-    +   'Назад'
-    + '</button>'
+    + '<button class="back-btn" onclick="switchPage(\'cart\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Назад</button>'
     + '<div class="page-title">Мой заказ</div>'
-    + '<div class="order-brief-status">'
-    +   '<div class="obs-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>'
-    +   '<div class="obs-info">'
-    +     '<div class="obs-title">На проверке</div>'
-    +     '<div class="obs-sub">Проверяем оплату, обычно до 15 минут</div>'
-    +   '</div>'
-    + '</div>'
+    + '<div class="order-brief-status"><div class="obs-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="obs-info"><div class="obs-title">На проверке</div><div class="obs-sub">Проверяем оплату, обычно до 15 минут</div></div></div>'
     + '<div class="order-brief-progress"><div class="obp-fill"></div></div>'
     + '<div class="order-brief-items">' + itemsHtml + '</div>'
-    + '<div class="order-brief-meta">'
-    +   '<span>Заказ №<b>' + String(order.id).slice(-6) + '</b></span>'
-    +   '<span>' + dateStr + ', ' + timeStr + '</span>'
-    + '</div>'
+    + '<div class="order-brief-meta"><span>Заказ №<b>' + String(order.id).slice(-6) + '</b></span><span>' + dateStr + ', ' + timeStr + '</span></div>'
     + '<div class="order-brief-hint">Как только мы подтвердим оплату, статус заказа обновится.</div>';
 }
 
@@ -1491,16 +1562,9 @@ function renderOrderEmptyPage() {
   var el = document.getElementById('orderContent');
   if (!el) return;
   el.innerHTML = ''
-    + '<button class="back-btn" onclick="switchPage(\'cart\')">'
-    +   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'
-    +   'Назад'
-    + '</button>'
+    + '<button class="back-btn" onclick="switchPage(\'cart\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Назад</button>'
     + '<div class="page-title">Мои заказы</div>'
-    + '<div class="order-empty">'
-    +   '<div class="ico"><svg viewBox="0 0 24 24"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>'
-    +   '<div class="title">У вас нет заказов</div>'
-    +   '<div class="sub">Оформите первый заказ — он появится здесь</div>'
-    + '</div>';
+    + '<div class="order-empty"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="title">У вас нет заказов</div><div class="sub">Оформите первый заказ — он появится здесь</div></div>';
 }
 
 window.showLastOrder = function() {
@@ -1517,53 +1581,332 @@ window.showLastOrder = function() {
 
 window.onSendReceipt = function(e) {
   if (!receiptFile) { e.preventDefault(); window.toast('Сначала загрузите фото чека'); return; }
-  var items = cart.map(function(i) { var p = findProduct(i.id); return { id: i.id, qty: i.qty, product: p }; }).filter(function(i) { return i.product; });
+  var items = cart.map(function(i) { return { id: i.id, qty: i.qty, product: findProduct(i.id) }; }).filter(function(i) { return i.product; });
   var total = items.reduce(function(s, i) { return s + i.product.newPrice * i.qty; }, 0);
   var order = saveOrder(items, total);
-
-  // Отправляем данные в Telegram, если открыто как Mini App
   try {
     if (tg && tg.sendData) {
       tg.sendData(JSON.stringify({
-        type: 'order',
-        id: order.id,
+        type: 'order', id: order.id,
         user: tgUser ? { id: tgUser.id, username: tgUser.username, first_name: tgUser.first_name } : null,
-        total: total,
-        items: order.items
+        total: total, items: order.items
       }));
     }
-  } catch (err) { console.log('sendData error:', err); }
-
+  } catch (err) {}
   setTimeout(function() {
-    stopPaymentTimer();
-    resetReceipt();
-    cart = [];
-    saveCart();
-    updateBadge();
-    renderCart();
-    refreshProductsIfOpen();
-    closeCheckout();
-    updateOrdersBadge();
-    renderOrderPage(order);
-    switchPage('order');
+    stopPaymentTimer(); resetReceipt();
+    cart = []; saveCart(); updateBadge(); renderCart(); refreshProductsIfOpen();
+    closeCheckout(); updateOrdersBadge();
+    renderOrderPage(order); switchPage('order');
     try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); } catch (err) {}
   }, 300);
 };
 
 window.cancelOrder = function() {
-  stopPaymentTimer();
-  resetReceipt();
-  closeCheckout();
+  stopPaymentTimer(); resetReceipt(); closeCheckout();
   window.toast('Заказ отменён');
 };
 
-document.querySelectorAll('.pay-method').forEach(function(btn) {
-  btn.addEventListener('click', function() { selectPayMethod(btn.dataset.method); });
-});
+/* КАЗИНО */
+var casinoProduct = null;
+var casinoChance = 10;
+var casinoSpinInProgress = false;
+var casinoReceiptFile = null;
+var casinoReceiptUrl = null;
+var casinoPayPrice = 0;
 
-/* ============================================================
-   ОТЗЫВЫ
-   ============================================================ */
+var CASINO_SLOT_W = 80;
+var CASINO_TARGET_INDEX = 42;
+var CASINO_TOTAL_SLOTS = 50;
+
+window.openCasino = function(id) {
+  var p = findProduct(id);
+  if (!p) return;
+  casinoProduct = p;
+  casinoChance = 10;
+  casinoSpinInProgress = false;
+  casinoPayPrice = 0;
+
+  var wheelWrap = document.querySelector('.casino-wheel-wrap');
+  var sliderWrap = document.querySelector('.casino-slider-wrap');
+  var priceRow = document.querySelector('.casino-price-row');
+  var spinBtn = document.getElementById('casinoSpinBtn');
+  var demoBtn = document.getElementById('casinoDemoBtn');
+  var cancelBtn = document.querySelector('.casino-cancel-btn');
+  if (wheelWrap) wheelWrap.style.display = '';
+  if (sliderWrap) sliderWrap.style.display = '';
+  if (priceRow) priceRow.style.display = '';
+  if (spinBtn) spinBtn.style.display = '';
+  if (demoBtn) demoBtn.style.display = '';
+  if (cancelBtn) cancelBtn.textContent = 'Отмена';
+
+  document.getElementById('casinoThumb').innerHTML = renderProductImage(p);
+  document.getElementById('casinoName').textContent = p.name;
+  document.getElementById('casinoProductPrice').textContent = formatPrice(p.newPrice);
+  document.getElementById('casinoSlider').value = 10;
+  document.getElementById('casinoResult').classList.remove('show', 'win', 'lose', 'demo');
+  document.getElementById('casinoResult').innerHTML = '';
+  document.getElementById('casinoSpinBtn').disabled = false;
+  document.getElementById('casinoDemoBtn').disabled = false;
+
+  buildCasinoStrip(CASINO_TARGET_INDEX, Math.random() < 0.5);
+  var stripInit = document.getElementById('casinoStrip');
+  if (stripInit) {
+    stripInit.style.transition = 'none';
+    stripInit.style.transform = 'translateX(0px)';
+  }
+  updateCasinoDisplay();
+  document.getElementById('casinoStep1').style.display = 'block';
+  document.getElementById('casinoStep2').style.display = 'none';
+  var modal = document.getElementById('casinoModal');
+  void modal.offsetHeight;
+  requestAnimationFrame(function() { requestAnimationFrame(function() { modal.classList.add('show'); }); });
+};
+
+window.closeCasino = function() {
+  var modal = document.getElementById('casinoModal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  casinoProduct = null;
+  casinoSpinInProgress = false;
+  resetCasinoReceipt();
+
+  var wheelWrap = document.querySelector('.casino-wheel-wrap');
+  var sliderWrap = document.querySelector('.casino-slider-wrap');
+  var priceRow = document.querySelector('.casino-price-row');
+  var spinBtn = document.getElementById('casinoSpinBtn');
+  var demoBtn = document.getElementById('casinoDemoBtn');
+  var cancelBtn = document.querySelector('.casino-cancel-btn');
+  if (wheelWrap) wheelWrap.style.display = '';
+  if (sliderWrap) sliderWrap.style.display = '';
+  if (priceRow) priceRow.style.display = '';
+  if (spinBtn) spinBtn.style.display = '';
+  if (demoBtn) demoBtn.style.display = '';
+  if (cancelBtn) cancelBtn.textContent = 'Отмена';
+};
+
+window.onCasinoSliderChange = function(v) {
+  casinoChance = parseInt(v, 10);
+  updateCasinoDisplay();
+};
+
+function updateCasinoDisplay() {
+  if (!casinoProduct) return;
+  var price = Math.round(casinoProduct.newPrice * casinoChance / 100);
+  document.getElementById('casinoChance').textContent = casinoChance + '%';
+  document.getElementById('casinoPriceValue').textContent = formatPrice(price);
+  document.getElementById('casinoSpinBtn').textContent = 'Крутить за ' + formatPrice(price) + ' ₽';
+}
+
+function getCasinoVisualChance() {
+  var v = (0.75 * casinoChance + 22.5) / 100;
+  if (v > 0.95) v = 0.95;
+  if (v < 0) v = 0;
+  return v;
+}
+
+function getCasinoRealChance() {
+  var v = (casinoChance / 100) / 2;
+  if (v < 0) v = 0;
+  return v;
+}
+
+function buildCasinoStrip(targetIndex, isWin) {
+  var strip = document.getElementById('casinoStrip');
+  if (!strip) return;
+  var html = '';
+  var visualChance = getCasinoVisualChance();
+
+  var winInner;
+  if (casinoProduct && casinoProduct.image) {
+    winInner = '<img src="' + casinoProduct.image + '" alt="" referrerpolicy="no-referrer" draggable="false">';
+  } else {
+    winInner = '<svg viewBox="0 0 24 24" fill="currentColor">'
+      + '<path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>'
+      + '</svg>';
+  }
+  var loseInner = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  for (var i = 0; i < CASINO_TOTAL_SLOTS; i++) {
+    var win = (i === targetIndex) ? isWin : (Math.random() < visualChance);
+    if (win) {
+      html += '<div class="casino-slot win"><div class="casino-slot-inner">' + winInner + '</div></div>';
+    } else {
+      html += '<div class="casino-slot lose"><div class="casino-slot-inner">' + loseInner + '</div></div>';
+    }
+  }
+  strip.innerHTML = html;
+}
+
+function spinCasino(isDemo) {
+  if (casinoSpinInProgress) return;
+  if (!casinoProduct) return;
+
+  casinoSpinInProgress = true;
+  document.getElementById('casinoSpinBtn').disabled = true;
+  document.getElementById('casinoDemoBtn').disabled = true;
+  var res = document.getElementById('casinoResult');
+  res.classList.remove('show', 'win', 'lose', 'demo');
+  res.innerHTML = '';
+
+  var win = Math.random() < getCasinoRealChance();
+
+  buildCasinoStrip(CASINO_TARGET_INDEX, win);
+
+  var strip = document.getElementById('casinoStrip');
+  var viewport = document.querySelector('.casino-wheel-viewport');
+  var frameW = viewport ? viewport.clientWidth : 320;
+
+  strip.style.transition = 'none';
+  strip.style.transform = 'translateX(0px)';
+  void strip.offsetHeight;
+
+  var slotW = CASINO_SLOT_W;
+  var targetX = (frameW / 2) - (slotW / 2) - (CASINO_TARGET_INDEX * slotW);
+
+  requestAnimationFrame(function() {
+    strip.style.transition = 'transform 3.6s cubic-bezier(0.15, 0.9, 0.25, 1)';
+    strip.style.transform = 'translateX(' + targetX + 'px)';
+  });
+
+  setTimeout(function() {
+    casinoSpinInProgress = false;
+    document.getElementById('casinoDemoBtn').disabled = false;
+    showCasinoResult(win, isDemo);
+  }, 3700);
+}
+
+function showCasinoResult(isWin, isDemo) {
+  var res = document.getElementById('casinoResult');
+  res.classList.remove('win', 'lose', 'demo', 'show');
+
+  if (isDemo) {
+    res.classList.add('demo', 'show');
+    if (isWin) {
+      res.innerHTML = '<div class="cr-title">Демо: вы бы выиграли!</div><div class="cr-sub">В реальной игре вы бы получили этот товар</div>';
+    } else {
+      res.innerHTML = '<div class="cr-title">Демо: не повезло</div><div class="cr-sub">В реальной игре ставка сгорела бы</div>';
+    }
+    document.getElementById('casinoSpinBtn').disabled = false;
+    return;
+  }
+
+  if (isWin) {
+    res.classList.add('win', 'show');
+    res.innerHTML = '<div class="cr-title">Победа! Товар ваш!</div><div class="cr-sub">' + casinoProduct.name + ' добавлен в корзину</div>';
+    var exists = cart.find(function(i) { return i.id === casinoProduct.id; });
+    if (!exists) {
+      cart.push({ id: casinoProduct.id, qty: 1 });
+      saveCart();
+      updateBadge();
+      renderCart();
+      refreshProductsIfOpen();
+    }
+    document.getElementById('casinoSpinBtn').disabled = true;
+    document.getElementById('casinoSpinBtn').textContent = 'Уже выиграно ✓';
+    try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+  } else {
+    res.classList.add('lose', 'show');
+    res.innerHTML = '<div class="cr-title">В этот раз не повезло</div><div class="cr-sub">Попробуйте ещё раз или измените шанс</div>';
+    document.getElementById('casinoSpinBtn').disabled = false;
+    try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error'); } catch (e) {}
+  }
+}
+
+window.openCasinoPayment = function() {
+  if (!casinoProduct) return;
+  casinoPayPrice = Math.round(casinoProduct.newPrice * casinoChance / 100);
+  document.getElementById('casinoThumb2').innerHTML = renderProductImage(casinoProduct);
+  document.getElementById('casinoName2').textContent = casinoProduct.name;
+  document.getElementById('casinoPayAmount').textContent = formatPrice(casinoPayPrice);
+  resetCasinoReceipt();
+  document.getElementById('casinoStep1').style.display = 'none';
+  document.getElementById('casinoStep2').style.display = 'block';
+  var modal = document.querySelector('#casinoModal .casino-modal');
+  if (modal) modal.scrollTop = 0;
+};
+
+window.backToCasinoSetup = function() {
+  document.getElementById('casinoStep2').style.display = 'none';
+  document.getElementById('casinoStep1').style.display = 'block';
+};
+
+window.resetCasinoReceipt = function() {
+  casinoReceiptFile = null;
+  if (casinoReceiptUrl) { try { URL.revokeObjectURL(casinoReceiptUrl); } catch (e) {} casinoReceiptUrl = null; }
+  var inp = document.getElementById('casinoReceiptInput'); if (inp) inp.value = '';
+  var box = document.getElementById('casinoReceiptBox'); if (box) box.classList.remove('has-photo');
+  var icon = document.getElementById('casinoReceiptIcon');
+  if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+  var title = document.getElementById('casinoReceiptTitle'); if (title) title.textContent = 'Загрузить чек';
+  var desc = document.getElementById('casinoReceiptDesc'); if (desc) desc.textContent = 'Обязательно для прокрута';
+  var act = document.getElementById('casinoReceiptAction'); if (act) act.textContent = 'Выбрать';
+  var btn = document.getElementById('casinoConfirmBtn');
+  if (btn) { btn.classList.add('disabled'); btn.disabled = true; }
+};
+
+window.handleCasinoReceipt = function(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { window.toast('Файл слишком большой (макс 8 МБ)'); return; }
+  casinoReceiptFile = file;
+  if (casinoReceiptUrl) { try { URL.revokeObjectURL(casinoReceiptUrl); } catch (err) {} }
+  try { casinoReceiptUrl = URL.createObjectURL(file); } catch (err) { casinoReceiptUrl = null; }
+  var box = document.getElementById('casinoReceiptBox'); if (box) box.classList.add('has-photo');
+  var icon = document.getElementById('casinoReceiptIcon');
+  if (icon && casinoReceiptUrl) icon.innerHTML = '<img src="' + casinoReceiptUrl + '" alt="">';
+  var title = document.getElementById('casinoReceiptTitle'); if (title) title.textContent = 'Чек загружен';
+  var desc = document.getElementById('casinoReceiptDesc');
+  if (desc) desc.textContent = file.name.length > 22 ? file.name.slice(0, 20) + '…' : file.name;
+  var act = document.getElementById('casinoReceiptAction'); if (act) act.textContent = 'Заменить';
+  var btn = document.getElementById('casinoConfirmBtn');
+  if (btn) { btn.classList.remove('disabled'); btn.disabled = false; }
+  window.toast('✓ Чек готов');
+};
+
+window.confirmCasinoAndSpin = function() {
+  if (!casinoReceiptFile) { window.toast('Загрузите чек'); return; }
+  if (!casinoProduct) return;
+
+  try {
+    if (tg && tg.sendData) {
+      tg.sendData(JSON.stringify({
+        type: 'casino_spin',
+        product_id: casinoProduct.id,
+        product_name: casinoProduct.name,
+        chance: casinoChance,
+        amount: casinoPayPrice,
+        user: tgUser ? { id: tgUser.id, username: tgUser.username, first_name: tgUser.first_name } : null
+      }));
+    }
+  } catch (e) {}
+
+  document.getElementById('casinoStep2').style.display = 'none';
+  document.getElementById('casinoStep1').style.display = 'block';
+
+  var wheelWrap = document.querySelector('.casino-wheel-wrap');
+  var sliderWrap = document.querySelector('.casino-slider-wrap');
+  var priceRow = document.querySelector('.casino-price-row');
+  var spinBtn = document.getElementById('casinoSpinBtn');
+  var demoBtn = document.getElementById('casinoDemoBtn');
+  var cancelBtn = document.querySelector('.casino-cancel-btn');
+
+  if (wheelWrap) wheelWrap.style.display = 'none';
+  if (sliderWrap) sliderWrap.style.display = 'none';
+  if (priceRow) priceRow.style.display = 'none';
+  if (spinBtn) spinBtn.style.display = 'none';
+  if (demoBtn) demoBtn.style.display = 'none';
+  if (cancelBtn) cancelBtn.textContent = 'Закрыть';
+
+  var res = document.getElementById('casinoResult');
+  res.classList.remove('win', 'lose', 'demo', 'show');
+  res.classList.add('lose', 'show');
+  res.innerHTML = ''
+    + '<div class="cr-title">Оплата не прошла</div>'
+    + '<div class="cr-sub">Если считаете это ошибкой — напишите в техподдержку</div>';
+};
+
+/* ОТЗЫВЫ */
 var REVIEWS = [
   { name: 'Артём К.', initial: 'А', color: 'linear-gradient(135deg, #ff8a5b, #ff4d5e)', text: 'Думал скам, но товар реально пришёл — iPhone 16 Pro Max в идеальном состоянии, всё запечатано, чек и гарантия на месте. Продавец на связи, отвечал быстро. Буду брать ещё.', date: '2026-09-28T14:23:00' },
   { name: 'Марина В.', initial: 'М', color: 'linear-gradient(135deg, #7b5cff, #00b8ff)', text: 'Сначала долго сомневалась, читала отзывы, рискнула — и не пожалела. Samsung S26 Ultra пришёл за 3 дня, всё оригинальное, цена ниже чем в магазинах. Спасибо!', date: '2026-09-15T19:47:00' },
@@ -1575,13 +1918,9 @@ var REVIEWS = [
 function formatReviewDate(iso) {
   var d = new Date(iso);
   var months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-  var day = d.getDate();
-  var month = months[d.getMonth()];
-  var year = d.getFullYear();
-  var hh = d.getHours();
-  var mm = d.getMinutes();
+  var hh = d.getHours(), mm = d.getMinutes();
   if (mm < 10) mm = '0' + mm;
-  return day + ' ' + month + ' ' + year + ', ' + hh + ':' + mm;
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ', ' + hh + ':' + mm;
 }
 
 function renderReviews() {
@@ -1591,29 +1930,14 @@ function renderReviews() {
   var starSvg = '<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
   var stars5 = starSvg + starSvg + starSvg + starSvg + starSvg;
   el.innerHTML = sorted.map(function(r) {
-    return '<div class="review-card">'
-      + '<div class="review-date">' + formatReviewDate(r.date) + '</div>'
-      + '<div class="review-head">'
-      +   '<div class="review-avatar" style="background:' + r.color + '">' + r.initial + '</div>'
-      +   '<div class="review-user">'
-      +     '<div class="review-name">' + r.name + '</div>'
-      +     '<div class="review-stars">' + stars5 + '</div>'
-      +   '</div>'
-      + '</div>'
-      + '<div class="review-text">' + r.text + '</div>'
-      + '</div>';
+    return '<div class="review-card"><div class="review-date">' + formatReviewDate(r.date) + '</div><div class="review-head"><div class="review-avatar" style="background:' + r.color + '">' + r.initial + '</div><div class="review-user"><div class="review-name">' + r.name + '</div><div class="review-stars">' + stars5 + '</div></div></div><div class="review-text">' + r.text + '</div></div>';
   }).join('');
 }
 
-window.openReviewForm = function() {
-  window.toast('У вас ещё нет заказов. Чтобы оставить отзыв, оформите первый заказ');
-};
-
+window.openReviewForm = function() { window.toast('У вас ещё нет заказов'); };
 renderReviews();
 
-/* ============================================================
-   TOAST
-   ============================================================ */
+/* TOAST */
 var toastTimer;
 window.toast = function(msg) {
   var t = document.getElementById('toast');
@@ -1631,9 +1955,7 @@ function renderPvz() {
   else el.textContent = 'Не указан';
 }
 
-/* ============================================================
-   НИЖНЕЕ МЕНЮ
-   ============================================================ */
+/* НИЖНЕЕ МЕНЮ */
 var navEl, navTrack, navIndicator, navButtons;
 
 function updateNavIndicator(name, animate) {
@@ -1728,8 +2050,7 @@ function initNav() {
     navEl.classList.remove('dragging');
     var x = getX(e);
     var i = getIndex(x);
-    var btn = navButtons[i];
-    var name = btn.dataset.page;
+    var name = navButtons[i].dataset.page;
     updateNavIndicator(name, true);
     switchPage(name);
     try { navEl.releasePointerCapture(e.pointerId); } catch (err) {}
@@ -1741,7 +2062,6 @@ function initNav() {
   navEl.addEventListener('pointercancel', onUp);
   window.addEventListener('resize', function() { layout(false); });
   window.addEventListener('orientationchange', function() { setTimeout(function(){ layout(false); }, 250); });
-
   layout(false);
   requestAnimationFrame(function() { layout(false); });
 }
@@ -1750,18 +2070,14 @@ window.switchPage = function(name) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   var page = document.getElementById('page-' + name);
   if (page) page.classList.add('active');
-
   if (name === 'order') {
     document.querySelectorAll('nav.bottom button').forEach(function(b) { b.classList.remove('active'); });
   } else {
     updateNavIndicator(name, true);
   }
-
   window.scrollTo({ top: 0, behavior: 'instant' });
   if (name === 'assortment') showCats();
   if (name === 'cart') renderCart();
-
-  // Управляем кнопкой «Назад» в Telegram
   try {
     if (tg && tg.BackButton) {
       if (name === 'assortment') tg.BackButton.hide();
@@ -1770,14 +2086,18 @@ window.switchPage = function(name) {
   } catch (e) {}
 };
 
-/* ============================================================
-   СТАРТ
-   ============================================================ */
+/* СТАРТ */
 renderPvz();
 updateBadge();
 renderCart();
 updateOrdersBadge();
 initNav();
+
+requestAnimationFrame(function() {
+  requestAnimationFrame(function() {
+    if (window.__finishPreloader) window.__finishPreloader();
+  });
+});
 </script>
 </body>
 </html>
